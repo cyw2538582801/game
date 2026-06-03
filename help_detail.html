@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Guide Hub{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <h1>Guide Hub</h1>
+    <p>Search strategy guides, open a post, like it, comment on it, or tip the creator.</p>
+  </div>
+  <a class="button primary" href="{{ url_for('publish_guide') }}">Publish Guide</a>
+</section>
+
+{% if keyword and not guides %}
+  <section class="empty-state">
+    <h2>No guide found for "{{ keyword }}"</h2>
+    <p>Turn the missing guide into a public question so experienced players can answer it.</p>
+    <a class="button primary" href="{{ url_for('ask_help', query=keyword) }}">Ask for Help</a>
+  </section>
+{% endif %}
+
+{% if keyword and related_questions %}
+  <section class="section-title compact-title">
+    <div>
+      <p>Related Help Requests</p>
+      <h2>Players asking about similar topics</h2>
+    </div>
+  </section>
+  <div class="list-panel">
+    {% for request_id, item in related_questions %}
+      <a class="row-link" href="{{ url_for('help_detail', request_id=request_id) }}">
+        <span>
+          <strong>{{ item.title }}</strong>
+          <small>{{ item.game }} / {{ item.status }}</small>
+        </span>
+        <span>{{ item.reward }} credits</span>
+      </a>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="card-grid">
+  {% for guide_id, guide in guides %}
+    <article class="guide-card">
+      <img src="{{ url_for('web_asset', filename=asset_for_guide(guide)) }}" alt="{{ guide.title }}">
+      <div class="card-body">
+        <p class="meta">{{ guide.game }} / {{ guide.category }} / {{ guide.difficulty }}</p>
+        <h2>{{ guide.title }}</h2>
+        <p>{{ guide.content }}</p>
+        <div class="tag-row">
+          {% for tag in guide.tags %}
+            <span>{{ tag }}</span>
+          {% endfor %}
+        </div>
+        <div class="card-footer">
+          <span>{{ guide.likes }} likes / {{ guide_tip_total(guide) }} tips</span>
+          <a href="{{ url_for('guide_detail', guide_id=guide_id) }}">Open Guide</a>
+        </div>
+      </div>
+    </article>
+  {% endfor %}
+</div>
+{% endblock %}

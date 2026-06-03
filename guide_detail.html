@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Friends & Messages{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <h1>Friends & Messages</h1>
+    <p>Manage friends, reply to messages, and invite multiple friends into a temporary squad.</p>
+  </div>
+</section>
+
+<section class="dashboard-grid">
+  <div class="wide-column">
+    <div class="section-title">
+      <div>
+        <p>Inbox</p>
+        <h2>Messages</h2>
+      </div>
+    </div>
+    <div class="message-list">
+      {% for message_id, message in visible_messages %}
+        <article class="message-card">
+          <p class="meta">
+            {% if message.reply_to %}Reply to message {{ message.reply_to }} / {% endif %}
+            {{ message.created }}
+          </p>
+          <h3>{{ message.from_player }} to {{ message.to_player }}</h3>
+          <p>{{ message.text }}</p>
+          <form class="inline-form" action="{{ url_for('reply_message', message_id=message_id) }}" method="post">
+            <input name="text" type="text" placeholder="Reply to this message..." required>
+            <button type="submit">Reply</button>
+          </form>
+        </article>
+      {% else %}
+        <p>No messages yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <aside class="rail">
+    <section class="panel">
+      <h2>Friends</h2>
+      {% if g.player.friends %}
+        <div class="tag-row">
+          {% for friend in g.player.friends %}
+            <span>{{ friend }}</span>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>No friends yet.</p>
+      {% endif %}
+    </section>
+
+    <section class="panel">
+      <h2>Send Message</h2>
+      <form class="stack-form" action="{{ url_for('send_message') }}" method="post">
+        <select name="to_player" required>
+          {% for friend in g.player.friends %}
+            <option>{{ friend }}</option>
+          {% endfor %}
+        </select>
+        <textarea name="text" rows="3" placeholder="Write a message..." required></textarea>
+        <button type="submit">Send</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Temporary Friend Squad</h2>
+      <form class="stack-form" action="{{ url_for('invite_squad') }}" method="post">
+        {% for friend in g.player.friends %}
+          <label class="check-row">
+            <input name="friends" type="checkbox" value="{{ friend }}">
+            <span>{{ friend }}</span>
+          </label>
+        {% endfor %}
+        <input name="message" type="text" placeholder="Want to play together?">
+        <button type="submit">Invite Selected Friends</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Team invitations</h2>
+      {% for invite_id, invite in received_invites %}
+        <div class="mini-card">
+          <strong>{{ invite.from_player }} invited you</strong>
+          <p>{{ invite.game }} / {{ invite.message }}</p>
+          <div class="split-actions">
+            <form action="{{ url_for('handle_invite', invite_id=invite_id, action='accept') }}" method="post">
+              <button type="submit">Accept</button>
+            </form>
+            <form action="{{ url_for('handle_invite', invite_id=invite_id, action='decline') }}" method="post">
+              <button class="ghost" type="submit">Decline</button>
+            </form>
+          </div>
+        </div>
+      {% else %}
+        <p>No received invitations.</p>
+      {% endfor %}
+      {% if sent_invites %}
+        <p class="meta">Sent invitations</p>
+        {% for invite_id, invite in sent_invites %}
+          <p>{{ invite.to_player }} / {{ invite.game }} / {{ invite.status }}</p>
+        {% endfor %}
+      {% endif %}
+    </section>
+
+    <section class="panel">
+      <h2>Friend requests</h2>
+      {% for request_id, item in received_requests %}
+        <div class="mini-card">
+          <strong>{{ item.from_player }}</strong>
+          <p>{{ item.message }}</p>
+          <div class="split-actions">
+            <form action="{{ url_for('handle_friend_request', request_id=request_id, action='accept') }}" method="post">
+              <button type="submit">Accept</button>
+            </form>
+            <form action="{{ url_for('handle_friend_request', request_id=request_id, action='decline') }}" method="post">
+              <button class="ghost" type="submit">Decline</button>
+            </form>
+          </div>
+        </div>
+      {% else %}
+        <p>No received friend requests.</p>
+      {% endfor %}
+      <form class="stack-form" action="{{ url_for('send_friend_request') }}" method="post">
+        <select name="to_player" required>
+          {% for player in players %}
+            {% if player.name != g.player.name and player.name not in g.player.friends %}
+              <option>{{ player.name }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        <input name="message" type="text" placeholder="Friend request message">
+        <button type="submit">Send Friend Request</button>
+      </form>
+    </section>
+  </aside>
+</section>
+{% endblock %}

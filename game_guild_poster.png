@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <h1>Create Account</h1>
+    <p>Build your player profile so GameGuild can recommend guides, questions, teammates, and squads for you.</p>
+  </div>
+  <a class="button ghost" href="{{ url_for('account') }}">Back to Account</a>
+</section>
+
+<form class="form-panel register-form" action="{{ url_for('register_account') }}" method="post">
+  <div class="two-fields">
+    <label>Username
+      <input name="name" type="text" placeholder="YourName" required>
+    </label>
+    <label>Password
+      <input name="password" type="password" placeholder="Choose a password" required>
+    </label>
+  </div>
+  <label>Confirm password
+    <input name="confirm_password" type="password" placeholder="Type the same password again" required>
+  </label>
+  <label>Favourite games
+    <input name="games" type="text" placeholder="Minecraft, Valorant" required>
+  </label>
+  <div class="two-fields">
+    <label>Playstyle
+      <input name="playstyle" type="text" placeholder="support, builder, duelist" required>
+    </label>
+    <label>Skill level
+      <select name="skill_level" required>
+        <option>beginner</option>
+        <option>intermediate</option>
+        <option>advanced</option>
+      </select>
+    </label>
+  </div>
+  <div class="two-fields">
+    <label>Availability
+      <input name="availability" type="text" placeholder="weekends" required>
+    </label>
+    <label>Language
+      <input name="language" type="text" placeholder="English" required>
+    </label>
+  </div>
+  <label>Region
+    <input name="region" type="text" placeholder="Australia" required>
+  </label>
+  <label>Looking for teammates?
+    <select name="looking_for_team" required>
+      <option value="yes">yes</option>
+      <option value="no">no</option>
+    </select>
+  </label>
+  <label>Bio
+    <textarea name="bio" rows="5" placeholder="Tell players what kind of teammate or creator you are."></textarea>
+  </label>
+  <div class="action-row">
+    <button type="submit">Create Account</button>
+    <a class="button ghost" href="{{ url_for('login_account') }}">Already have an account?</a>
+  </div>
+</form>
+{% endblock %}

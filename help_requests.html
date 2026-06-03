@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}{{ guide.title }}{% endblock %}
+
+{% block content %}
+<section class="detail-layout">
+  <article class="article-panel">
+    <img class="article-cover" src="{{ url_for('web_asset', filename=asset_for_guide(guide)) }}" alt="{{ guide.title }}">
+    <p class="meta">{{ guide.game }} / {{ guide.category }} / {{ guide.difficulty }}</p>
+    <h1>{{ guide.title }}</h1>
+    <p class="article-copy">{{ guide.content }}</p>
+    <div class="tag-row">
+      {% for tag in guide.tags %}
+        <span>{{ tag }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="action-row">
+      <form action="{{ url_for('like_guide', guide_id=guide_id) }}" method="post">
+        <button type="submit">Like guide</button>
+      </form>
+      <form class="inline-form" action="{{ url_for('tip_guide', guide_id=guide_id) }}" method="post">
+        <input name="amount" type="number" min="1" value="5" aria-label="Tip amount">
+        <input name="message" type="text" placeholder="Optional tip message">
+        <button type="submit">Tip creator</button>
+      </form>
+    </div>
+
+    <section class="comments">
+      <h2>Comments</h2>
+      {% for comment in guide.comments %}
+        <div class="comment">
+          <strong>{{ comment.author }}</strong>
+          <p>{{ comment.text }}</p>
+        </div>
+      {% else %}
+        <p>No comments yet.</p>
+      {% endfor %}
+      <form class="stack-form" action="{{ url_for('comment_guide', guide_id=guide_id) }}" method="post">
+        <textarea name="text" rows="3" placeholder="Add a useful comment..." required></textarea>
+        <button type="submit">Add Comment</button>
+      </form>
+    </section>
+  </article>
+
+  <aside class="rail">
+    <section class="panel">
+      <h2>Creator</h2>
+      <p><strong>{{ guide.author }}</strong></p>
+      <p>{{ guide.likes }} likes / {{ guide_tip_total(guide) }} credits tipped</p>
+    </section>
+
+    <section class="panel">
+      <h2>Related teams</h2>
+      {% for team_id, team in teams %}
+        <div class="mini-card">
+          <strong>{{ team.game }} {{ team.mode }}</strong>
+          <p>{{ team.message }}</p>
+          <small>{{ capacity_text(team) }} members</small>
+          <form action="{{ url_for('join_team', team_id=team_id) }}" method="post">
+            <button type="submit">Join Team</button>
+          </form>
+        </div>
+      {% else %}
+        <p>No related team-ups yet.</p>
+      {% endfor %}
+    </section>
+
+    <section class="panel">
+      <h2>Related help requests</h2>
+      {% for request_id, item in help_requests %}
+        <a class="mini-link" href="{{ url_for('help_detail', request_id=request_id) }}">{{ item.title }}</a>
+      {% else %}
+        <p>No questions for this game yet.</p>
+      {% endfor %}
+      <a class="button full" href="{{ url_for('ask_help', query=guide.game) }}">Ask a Question</a>
+    </section>
+  </aside>
+</section>
+{% endblock %}

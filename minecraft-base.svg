@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Team-Ups{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <h1>Team-Ups</h1>
+    <p>Create public squad requests, join open teams, or use recommendations to find compatible players.</p>
+  </div>
+</section>
+
+<section class="dashboard-grid">
+  <div class="wide-column">
+    <div class="section-title">
+      <div>
+        <p>Team Board</p>
+        <h2>Open team-up requests</h2>
+      </div>
+    </div>
+    <div class="team-grid">
+      {% for team_id, team in teams %}
+        <article class="team-card">
+          <p class="meta">{{ team.status }} / {{ team.skill_level }} / {{ team.region }}</p>
+          <h2>{{ team.game }}: {{ team.mode }}</h2>
+          <p>{{ team.message }}</p>
+          <p>{{ team.time }} / {{ team.language }}</p>
+          <p>Members: {{ team.members|join(", ") }}</p>
+          <div class="card-footer">
+            <span>{{ capacity_text(team) }}</span>
+            <form action="{{ url_for('join_team', team_id=team_id) }}" method="post">
+              <button type="submit">Join Team</button>
+            </form>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+
+  <aside class="rail">
+    <section class="panel">
+      <h2>Create Team-Up</h2>
+      <form class="stack-form" action="{{ url_for('create_team') }}" method="post">
+        <input name="game" type="text" placeholder="Game" required>
+        <input name="mode" type="text" placeholder="Mode or goal" required>
+        <input name="time" type="text" placeholder="Time" required>
+        <textarea name="message" rows="4" placeholder="What kind of teammates do you need?" required></textarea>
+        <input name="skill_level" type="text" placeholder="Skill level">
+        <input name="language" type="text" placeholder="Language">
+        <input name="region" type="text" placeholder="Region">
+        <input name="max_members" type="number" min="0" value="0" aria-label="Maximum members">
+        <button type="submit">Create Team-Up</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Find teammates</h2>
+      {% for player, shared_games in matches %}
+        <div class="mini-row">
+          <span class="avatar small">{{ player.name[:1] }}</span>
+          <span>
+            <strong>{{ player.name }}</strong>
+            <small>{{ shared_games|join(", ") }} / {{ player.playstyle }}</small>
+          </span>
+        </div>
+      {% else %}
+        <p>No compatible players right now.</p>
+      {% endfor %}
+    </section>
+  </aside>
+</section>
+{% endblock %}

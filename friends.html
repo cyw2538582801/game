@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}GameGuild{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="{{ url_for('dashboard') }}">
+        <span class="brand-mark">GG</span>
+        {% if not layout_only %}
+          <span>
+            <strong>GameGuild</strong>
+            <small>Gaming social platform</small>
+          </span>
+        {% endif %}
+      </a>
+
+      {% if layout_only %}
+        <nav class="nav wire-nav" aria-label="Layout navigation">
+          <span class="wire-nav-item active"></span>
+          <span class="wire-nav-item"></span>
+          <span class="wire-nav-item"></span>
+          <span class="wire-nav-item"></span>
+          <span class="wire-nav-item"></span>
+          <span class="wire-nav-item"></span>
+        </nav>
+
+        <div class="wire-profile">
+          <span></span>
+          <div>
+            <i></i>
+            <i></i>
+          </div>
+        </div>
+
+        <div class="wire-poster"></div>
+      {% else %}
+        <nav class="nav">
+          <a class="{{ 'active' if active_page == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">Home</a>
+          <a class="{{ 'active' if active_page == 'guides' else '' }}" href="{{ url_for('guides') }}">Guide Hub</a>
+          <a class="{{ 'active' if active_page == 'help' else '' }}" href="{{ url_for('help_requests') }}">Help Requests</a>
+          <a class="{{ 'active' if active_page == 'teams' else '' }}" href="{{ url_for('teams') }}">Team-Ups</a>
+          <a class="{{ 'active' if active_page == 'friends' else '' }}" href="{{ url_for('friends') }}">Friends & Messages</a>
+          <a class="{{ 'active' if active_page == 'account' else '' }}" href="{{ url_for('account') }}">Account / Login</a>
+        </nav>
+
+        <a class="profile-chip" href="{{ url_for('account') }}">
+          <div class="avatar">{{ g.player.name[:1] }}</div>
+          <div>
+            <strong>{{ g.player.name }}</strong>
+            <span>{{ g.player.credits }} credits</span>
+          </div>
+        </a>
+
+        <img class="sidebar-poster" src="{{ url_for('web_asset', filename='game_guild_poster.png') }}" alt="GameGuild poster">
+      {% endif %}
+    </aside>
+
+    <main class="main">
+      {% if layout_only %}
+        <header class="topbar wire-topbar">
+          <div class="wire-search"></div>
+          <div class="wire-actions">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </header>
+      {% else %}
+        <header class="topbar">
+          <form class="search" action="{{ url_for('guides') }}" method="get">
+            <input name="q" type="search" placeholder="Search guides, games, tags, creators..." value="{{ keyword | default('') }}">
+            <button type="submit">Search</button>
+          </form>
+          <div class="account-tools">
+            <a class="button primary" href="{{ url_for('account') }}">Account / Login</a>
+            <form action="{{ url_for('reset_demo') }}" method="post">
+              <button class="ghost" type="submit">Reset Demo</button>
+            </form>
+          </div>
+        </header>
+      {% endif %}
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="flash-list">
+            {% for message in messages %}
+              <p>{{ message }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

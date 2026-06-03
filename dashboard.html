@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Ask for Help{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <h1>Ask for Help</h1>
+    <p>Create a public question that guide creators and experienced players can answer.</p>
+  </div>
+</section>
+
+<form class="form-panel" action="{{ url_for('ask_help') }}" method="post">
+  <label>Game
+    <input name="game" type="text" value="{{ query }}" placeholder="Minecraft" required>
+  </label>
+  <label>Question title
+    <input name="title" type="text" placeholder="How can I stop mobs entering my starter base?" required>
+  </label>
+  <label>Description
+    <textarea name="description" rows="7" placeholder="Explain what you tried, where you are stuck, and what kind of answer would help." required></textarea>
+  </label>
+  <div class="two-fields">
+    <label>Tags
+      <input name="tags" type="text" placeholder="survival, base, mobs">
+    </label>
+    <label>Reward credits
+      <input name="reward" type="number" min="0" value="5">
+    </label>
+  </div>
+  <div class="action-row">
+    <button type="submit">Post Question</button>
+    <a class="button ghost" href="{{ url_for('help_requests') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

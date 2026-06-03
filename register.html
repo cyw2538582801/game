@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <h1>Login</h1>
+    <p>Enter your username and password to continue with your own GameGuild account.</p>
+  </div>
+  <a class="button ghost" href="{{ url_for('account') }}">Back to Account</a>
+</section>
+
+<section class="auth-layout">
+  <article class="panel auth-card">
+    <h2>Login to GameGuild</h2>
+    <p class="meta">Demo accounts: Carl, Mia, Thor, Luna, Ari. Password: 1234.</p>
+    <form class="stack-form" action="{{ url_for('login_account') }}" method="post">
+      <label>Username
+        <input name="name" type="text" placeholder="Carl" required>
+      </label>
+      <label>Password
+        <input name="password" type="password" placeholder="1234" required>
+      </label>
+      <button type="submit">Login</button>
+    </form>
+  </article>
+
+  <aside class="panel">
+    <h2>Quick demo login</h2>
+    <p class="meta">Use these buttons when testing the prototype quickly.</p>
+    <div class="demo-switcher compact-demo">
+      {% for player in players %}
+        <form action="{{ url_for('switch_user') }}" method="post">
+          <input type="hidden" name="user" value="{{ player.name }}">
+          <button class="ghost" type="submit">{{ player.name }}</button>
+        </form>
+      {% endfor %}
+    </div>
+    <a class="button full" href="{{ url_for('register_account') }}">Create a New Account</a>
+  </aside>
+</section>
+{% endblock %}

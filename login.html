@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ help_request.title }}{% endblock %}
+
+{% block content %}
+<section class="detail-layout">
+  <article class="article-panel">
+    <p class="meta">{{ help_request.game }} / {{ help_request.status }} / {{ help_request.reward }} reward credits</p>
+    <h1>{{ help_request.title }}</h1>
+    <p class="article-copy">{{ help_request.description }}</p>
+    <div class="tag-row">
+      {% for tag in help_request.tags %}
+        <span>{{ tag }}</span>
+      {% endfor %}
+    </div>
+
+    <section class="comments">
+      <h2>Answers</h2>
+      {% for reply in help_request.replies %}
+        <div class="comment {{ 'best' if loop.index0 == help_request.best_reply else '' }}">
+          <strong>{{ reply.author }}</strong>
+          <p>{{ reply.text }}</p>
+          <small>{{ reply.created }}</small>
+          {% if help_request.author == g.player.name and loop.index0 != help_request.best_reply %}
+            <form action="{{ url_for('mark_best_answer', request_id=request_id, reply_id=loop.index0) }}" method="post">
+              <button type="submit">Mark Best Answer</button>
+            </form>
+          {% endif %}
+        </div>
+      {% else %}
+        <p>No answers yet.</p>
+      {% endfor %}
+    </section>
+
+    {% if help_request.status == "open" %}
+      <form class="stack-form" action="{{ url_for('answer_help', request_id=request_id) }}" method="post">
+        <label>Your answer
+          <textarea name="text" rows="4" placeholder="Write a clear, practical answer..." required></textarea>
+        </label>
+        <button type="submit">Submit Answer</button>
+      </form>
+    {% endif %}
+  </article>
+
+  <aside class="rail">
+    <section class="panel">
+      <h2>Asked by</h2>
+      <p><strong>{{ help_request.author }}</strong></p>
+      <p>{{ help_request.created }}</p>
+    </section>
+    <section class="panel">
+      <h2>How this supports the platform</h2>
+      <p>Unanswered problems become searchable community knowledge. Helpful answers can later turn into full guides.</p>
+    </section>
+    <a class="button full" href="{{ url_for('guides', q=help_request.game) }}">Search Related Guides</a>
+  </aside>
+</section>
+{% endblock %}

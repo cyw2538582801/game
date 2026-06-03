@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Publish Guide{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <h1>Publish Guide</h1>
+    <p>Share a practical strategy post that other players can search, discuss, like, and tip.</p>
+  </div>
+</section>
+
+<form class="form-panel" action="{{ url_for('publish_guide') }}" method="post">
+  <label>Game
+    <input name="game" type="text" placeholder="Minecraft" required>
+  </label>
+  <label>Title
+    <input name="title" type="text" placeholder="Starter Base Guide" required>
+  </label>
+  <div class="two-fields">
+    <label>Category
+      <input name="category" type="text" placeholder="Building" required>
+    </label>
+    <label>Difficulty
+      <select name="difficulty" required>
+        <option>Beginner</option>
+        <option>Intermediate</option>
+        <option>Advanced</option>
+      </select>
+    </label>
+  </div>
+  <label>Tags
+    <input name="tags" type="text" placeholder="survival, base, beginner">
+  </label>
+  <label>Guide content
+    <textarea name="content" rows="8" placeholder="Write clear steps, tips, and useful warnings..." required></textarea>
+  </label>
+  <div class="action-row">
+    <button type="submit">Publish</button>
+    <a class="button ghost" href="{{ url_for('guides') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

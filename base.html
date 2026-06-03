@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Account{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <h1>Account</h1>
+    <p>Choose how you want to enter GameGuild. You can log in to an existing account or create a new player profile.</p>
+  </div>
+</section>
+
+<section class="account-choice-grid">
+  <article class="panel choice-card">
+    <span class="choice-number">1</span>
+    <h2>Login</h2>
+    <p>Use an existing player account to see your own profile, credits, friends, messages, recommendations, and squad invitations.</p>
+    <a class="button primary full" href="{{ url_for('login_account') }}">Go to Login</a>
+    <p class="meta">Demo accounts: Carl, Mia, Thor, Luna, Ari. Password: 1234.</p>
+  </article>
+
+  <article class="panel choice-card">
+    <span class="choice-number">2</span>
+    <h2>Create Account</h2>
+    <p>Register a new player profile with favourite games, playstyle, region, language, and a short bio.</p>
+    <a class="button full" href="{{ url_for('register_account') }}">Go to Register</a>
+  </article>
+
+  <article class="panel account-profile">
+    <div class="avatar large">{{ g.player.name[:1] }}</div>
+    <h2>{{ g.player.name }}</h2>
+    <p class="meta">Current active account</p>
+    <p>{{ g.player.bio }}</p>
+    <div class="tag-row">
+      {% for game in g.player.games %}
+        <span>{{ game }}</span>
+      {% endfor %}
+    </div>
+    <dl class="profile-stats">
+      <div>
+        <dt>Credits</dt>
+        <dd>{{ g.player.credits }}</dd>
+      </div>
+      <div>
+        <dt>Earnings</dt>
+        <dd>{{ g.player.earnings }}</dd>
+      </div>
+      <div>
+        <dt>Playstyle</dt>
+        <dd>{{ g.player.playstyle }}</dd>
+      </div>
+      <div>
+        <dt>Region</dt>
+        <dd>{{ g.player.region }}</dd>
+      </div>
+    </dl>
+    <form action="{{ url_for('logout_account') }}" method="post">
+      <button class="ghost" type="submit">Logout to Demo Mode</button>
+    </form>
+  </article>
+</section>
+{% endblock %}

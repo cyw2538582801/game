@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GameGuild Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="gg-page">
+  {% set player = g.player %}
+  {% set notice_count = pending_invite_count + (featured_help|length) %}
+  <div class="gg-scale-shell">
+    <div class="gg-app-frame">
+      <aside class="gg-sidebar">
+        <a class="gg-brand" href="{{ url_for('dashboard') }}">
+          <span class="gg-logo">G</span>
+          <strong>GameGuild</strong>
+        </a>
+
+        <nav class="gg-menu" aria-label="Main navigation">
+          <a class="active" href="{{ url_for('dashboard') }}"><span>H</span> Home</a>
+          <a href="{{ url_for('guides') }}"><span>G</span> Guide Hub</a>
+          <a href="{{ url_for('guides') }}"><span>S</span> Search Guides</a>
+          <a href="{{ url_for('help_requests') }}"><span>?</span> Help Requests</a>
+          <a href="{{ url_for('teams') }}"><span>T</span> Team-Up Board</a>
+          <a href="#recommendations"><span>R</span> Recommendations</a>
+          <a href="{{ url_for('friends') }}"><span>M</span> Friends & Messages</a>
+          <a href="#leaderboards"><span>L</span> Leaderboards</a>
+          <a href="{{ url_for('account') }}"><span>A</span> Account</a>
+        </nav>
+
+        <section class="gg-sidebar-card">
+          <div class="gg-card-head">
+            <strong>Earn Credits</strong>
+            <span>></span>
+          </div>
+          <p>Answer help requests, publish useful guides, and receive tips from players.</p>
+          <a href="{{ url_for('help_requests') }}">Find Questions</a>
+        </section>
+
+        <section class="gg-credit-card">
+          <span class="gg-coin">G</span>
+          <div>
+            <small>Guild Credits</small>
+            <strong>{{ player.credits if player else 0 }}</strong>
+          </div>
+        </section>
+      </aside>
+
+      <main class="gg-main">
+        <header class="gg-topbar">
+          <form class="gg-search" action="{{ url_for('guides') }}" method="get">
+            <span>S</span>
+            <input name="q" type="search" placeholder="Search guides, games, or players...">
+            <button type="submit">Go</button>
+          </form>
+          <div class="gg-top-icons">
+            <a href="#help-requests" aria-label="Notifications">!<b>{{ notice_count }}</b></a>
+            <a href="{{ url_for('friends') }}" aria-label="Messages">M<b>{{ unread_message_count }}</b></a>
+          </div>
+          <a class="gg-user-pill" href="{{ url_for('account') }}">
+            <span class="gg-user-avatar"></span>
+            <span><strong>{{ player.name if player else "Guest" }}</strong><small>Lv. 18</small></span>
+            <i></i>
+          </a>
+        </header>
+
+        <section class="gg-dashboard">
+          <section class="gg-center">
+            <section class="gg-welcome">
+              <div>
+                <h1>Welcome back, <span>{{ player.name if player else "Player" }}</span></h1>
+                <p>Discover guides, ask for help, and find the perfect teammate.</p>
+              </div>
+              <div class="gg-hero-art"></div>
+            </section>
+
+            <section class="gg-panel gg-guides-panel" id="featured-guides">
+              <div class="gg-section-title">
+                <h2>Featured Guides</h2>
+                <a href="{{ url_for('guides') }}">View all</a>
+              </div>
+              <div class="gg-guide-grid">
+                {% for guide_id, guide in featured_guides %}
+                  {% set game_lower = guide.game|lower %}
+                  {% set cover_class = "gg-cover-minecraft" %}
+                  {% if "valorant" in game_lower %}
+                    {% set cover_class = "gg-cover-valorant" %}
+                  {% elif "stardew" in game_lower or "farm" in game_lower %}
+                    {% set cover_class = "gg-cover-farm" %}
+                  {% endif %}
+                  <article class="gg-guide-card">
+                    <div class="gg-cover {{ cover_class }}">
+                      <img src="{{ url_for('web_asset', filename=asset_for_guide(guide)) }}" alt="">
+                      <span>{{ guide.game }}</span>
+                      <a class="gg-bookmark" href="{{ url_for('guide_detail', guide_id=guide_id) }}" aria-label="Open guide">></a>
+                    </div>
+                    <a class="gg-card-title" href="{{ url_for('guide_detail', guide_id=guide_id) }}">
+                      <h3>{{ guide.title }}</h3>
+                    </a>
+                    <div class="gg-tags {% if 'valorant' in game_lower %}red{% endif %}">
+                      <span>{{ guide.difficulty }}</span>
+                      <span>{{ guide.category }}</span>
+                    </div>
+                    <p>{{ guide.content }}</p>
+                    <footer>
+                      <span class="gg-mini-avatar brown"></span>
+                      by {{ guide.author }}
+                      <i>G</i>
+                      <small>{{ short_number(guide.likes) }} likes</small>
+                    </footer>
+                  </article>
+                {% endfor %}
+              </div>
+            </section>
+
+            <section class="gg-panel gg-team-panel" id="team-ups">
+              <div class="gg-section-title">
+                <h2>Find Teammates</h2>
+                <a href="{{ url_for('teams') }}">View all</a>
+              </div>
+              <div class="gg-team-grid">
+                {% for team_id, team in featured_teams %}
+                  {% set is_valorant = "valorant" in team.game|lower %}
+                  <article class="gg-squad-card {% if is_valorant %}valorant{% else %}minecraft{% endif %}">
+                    <span class="gg-game-label {% if is_valorant %}red{% endif %}">{{ team.game }}</span>
+                    <h3>{{ team.mode|title }}</h3>
+                    <p>{{ team.message }}</p>
+                    <dl>
+                      <div><dt>Player Style</dt><dd>{{ team.skill_level }}</dd></div>
+                      <div><dt>Language</dt><dd>{{ team.language }}</dd></div>
+                      <div><dt>Region</dt><dd>{{ team.region }}</dd></div>
+                    </dl>
+                    <footer>
+                      <span class="gg-stack {% if is_valorant %}two{% endif %}"></span>
+                      <small>{{ capacity_text(team) }}</small>
+                      {% if player and player.name in team.members %}
+                        <a href="{{ url_for('teams') }}">Open Team</a>
+                      {% else %}
+                        <form action="{{ url_for('join_team', team_id=team_id) }}" method="post">
+                          <button class="{% if is_valorant %}danger{% endif %}" type="submit">
+                            {% if is_valorant %}Join Duo{% else %}Join Squad{% endif %}
+                          </button>
+                        </form>
+                      {% endif %}
+                    </footer>
+                  </article>
+                {% endfor %}
+              </div>
+            </section>
+          </section>
+
+          <aside class="gg-middle-rail">
+            <section class="gg-panel" id="help-requests">
+              <div class="gg-section-title">
+                <h2>Help Requests</h2>
+                <a href="{{ url_for('help_requests') }}">View all</a>
+              </div>
+              <div class="gg-help-list">
+                {% for request_id, item in featured_help %}
+                  <a href="{{ url_for('help_detail', request_id=request_id) }}">
+                    <span class="gg-question">?</span>
+                    <strong>{{ item.title }}</strong>
+                    <b>{{ item.reward }} <i>G</i></b>
+                    <small><em class="{% if 'valorant' in item.game|lower %}red{% endif %}">{{ item.game }}</em> {{ item.tags[:1]|join(", ") or "General" }}</small>
+                    <p>{{ item.status|title }} - {{ item.replies|length }} answers</p>
+                  </a>
+                {% endfor %}
+              </div>
+            </section>
+
+            <section class="gg-panel gg-recommend-panel" id="recommendations">
+              <div class="gg-section-title"><h2>Recommendations</h2></div>
+              <div class="gg-rec-block">
+                <h3>Guides to read <span>></span></h3>
+                {% for guide_id, guide in guide_recommendations %}
+                  <a href="{{ url_for('guide_detail', guide_id=guide_id) }}">
+                    <img src="{{ url_for('web_asset', filename=asset_for_guide(guide)) }}" alt="">
+                    {{ guide.title }}
+                    <small>by {{ guide.author }}</small>
+                  </a>
+                {% endfor %}
+              </div>
+              <div class="gg-rec-block">
+                <h3>Questions you can answer <span>></span></h3>
+                {% for request_id, item in question_recommendations %}
+                  {% set help_asset = "tactical-map.svg" if "valorant" in item.game|lower else "minecraft-base.svg" %}
+                  <a href="{{ url_for('help_detail', request_id=request_id) }}">
+                    <img src="{{ url_for('web_asset', filename=help_asset) }}" alt="">
+                    {{ item.title }}
+                    <small>{{ item.game }} - {{ item.reward }} G</small>
+                  </a>
+                {% else %}
+                  <a href="{{ url_for('help_requests') }}">
+                    <img src="{{ url_for('web_asset', filename='minecraft-base.svg') }}" alt="">
+                    Browse open questions
+                    <small>Help another player earn credits</small>
+                  </a>
+                {% endfor %}
+              </div>
+            </section>
+          </aside>
+
+          <aside class="gg-right-rail" id="leaderboards">
+            <section class="gg-panel gg-profile-card">
+              <div class="gg-profile-row">
+                <span class="gg-profile-avatar"></span>
+                <div>
+                  <h2>{{ player.name if player else "Guest" }}</h2>
+                  <p>Lv. 18 - {{ player.earnings if player else 0 }} creator earnings</p>
+                  <i></i>
+                </div>
+              </div>
+              <div class="gg-profile-stats">
+                <div><small>Games</small><strong>{{ player.games[:2]|join(", ") if player else "None" }}</strong></div>
+                <div><small>Playstyle</small><strong>{{ player.playstyle|title if player else "None" }}</strong></div>
+                <div><small>Guild Credits</small><strong>{{ player.credits if player else 0 }} G</strong></div>
+                <div><small>Friends</small><strong>{{ player.friends|length if player else 0 }}</strong></div>
+                <div><small>Region</small><strong>{{ player.region if player else "Global" }}</strong></div>
+                <div><small>Reputation</small><strong class="green">Great</strong></div>
+              </div>
+            </section>
+
+            <section class="gg-panel gg-rank-card">
+              <div class="gg-section-title"><h2>Top Creators</h2><a href="{{ url_for('guides') }}">View all</a></div>
+              <ol>
+                {% for creator, score in top_creators %}
+                  <li><span class="gg-mini-avatar brown"></span><strong>{{ creator.name }}</strong><b>{{ short_number(score) }} G</b></li>
+                {% endfor %}
+              </ol>
+            </section>
+
+            <section class="gg-panel gg-rank-card">
+              <div class="gg-section-title"><h2>Top Helpers</h2><a href="{{ url_for('help_requests') }}">View all</a></div>
+              <ol>
+                {% for helper, score in top_helpers %}
+                  <li><span class="gg-mini-avatar dark"></span><strong>{{ helper.name }}</strong><b>{{ short_number(score) }} G</b></li>
+                {% endfor %}
+              </ol>
+            </section>
+          </aside>
+        </section>
+
+        <section class="gg-bottom-bar" id="messages">
+          <div class="gg-friends-line">
+            <div class="gg-section-title"><h2>Friends / Messages</h2><a href="{{ url_for('friends') }}">View all</a></div>
+            <div class="gg-friend-list">
+              {% for friend in dashboard_friends[:5] %}
+                <a href="{{ url_for('friends') }}"><i class="gg-mini-avatar brown"></i><strong>{{ friend.name }}</strong><small>{{ friend.playstyle|title }}</small></a>
+              {% else %}
+                <a href="{{ url_for('friends') }}"><i class="gg-mini-avatar brown"></i><strong>Find Friends</strong><small>Open friend center</small></a>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="gg-message-line">
+            {% for message_id, message in dashboard_messages %}
+              <a href="{{ url_for('friends') }}">
+                <span class="gg-mini-avatar brown"></span>
+                <strong>{{ message.from_player }}</strong>
+                {{ message.text }}
+                <small>{{ message.created }}</small>
+                <b>></b>
+              </a>
+            {% else %}
+              <a href="{{ url_for('friends') }}">
+                <span class="gg-mini-avatar brown"></span>
+                <strong>No messages</strong>
+                Open Friends & Messages to start a conversation.
+                <small>Now</small>
+                <b>></b>
+              </a>
+            {% endfor %}
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

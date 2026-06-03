@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Help Requests{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <h1>Help Requests</h1>
+    <p>When guides do not answer a problem, players can ask the community and reward the best answer.</p>
+  </div>
+  <a class="button primary" href="{{ url_for('ask_help') }}">Ask for Help</a>
+</section>
+
+<form class="filter-panel" action="{{ url_for('help_requests') }}" method="get">
+  <input name="q" type="search" placeholder="Search questions by game, tag, or problem..." value="{{ keyword }}">
+  <button type="submit">Search Questions</button>
+</form>
+
+<div class="list-panel">
+  {% for request_id, item in help_requests %}
+    <a class="row-link help-row {{ 'solved' if item.status == 'solved' else '' }}" href="{{ url_for('help_detail', request_id=request_id) }}">
+      <span>
+        <strong>{{ item.title }}</strong>
+        <small>{{ item.game }} / {{ item.author }} / {{ item.status }}</small>
+      </span>
+      <span>{{ item.reward }} credits / {{ item.replies|length }} answers</span>
+    </a>
+  {% else %}
+    <div class="empty-state compact">
+      <h2>No questions found</h2>
+      <p>Post the first request so other players can help.</p>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}
